@@ -1,3 +1,4 @@
+// VPC
 variable "cidr" {
   description = "The IPv4 CIDR block for the VPC"
   type        = string
@@ -33,3 +34,47 @@ variable "vpc_tags" {
   type        = map(string)
   default     = {}
 }
+
+// Public Subnets
+variable "public_subnets" {
+  description = "value"
+  type        = list(string)
+  default     = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
+}
+variable "map_public_ip_on_launch" {
+  description = "Specify true to indicate that instances launched into the subnet should be assigned a public IP address."
+  type        = bool
+  default     = false
+}
+variable "public_subnet_names" {
+  description = "value"
+  type        = list(string)
+  default     = []
+}
+
+// Private Subnets
+variable "private_subnets" {
+  description = "value"
+  type        = list(string)
+  default     = ["10.0.20.0/24", "10.0.21.0/24", "10.0.22.0/24"]
+}
+
+variable "private_subnet_names" {
+  description = "value"
+  type        = list(string)
+  default     = []
+}
+
+// Database Subnets
+variable "database_subnets" {
+  description = "value"
+  type        = list(string)
+  default     = ["10.0.30.0/24", "10.0.31.0/24", "10.0.32.0/24"]
+}
+
+variable "database_subnet_names" {
+  description = "value"
+  type        = list(string)
+  default     = []
+}
+

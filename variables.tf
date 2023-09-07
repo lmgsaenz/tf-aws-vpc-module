@@ -78,3 +78,9 @@ variable "database_subnet_names" {
   default     = []
 }
 
+// Internet Gateway
+variable "create_igw" {
+  description = ""
+  type        = bool
+  default     = true
+}

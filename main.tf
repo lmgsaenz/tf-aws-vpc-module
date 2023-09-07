@@ -36,6 +36,26 @@ resource "aws_subnet" "public" {
   )
 }
 
+resource "aws_route_table" "public" {
+  count  = local.create_public_subnets ? 1 : 0
+  vpc_id = aws_vpc.this.id
+}
+
+resource "aws_route_table_association" "public" {
+  count          = local.create_public_subnets ? local.length_public_subnets : 0
+  subnet_id      = element(aws_subnet.public.*.id, count.index)
+  route_table_id = aws_route_table.public[0].id
+  depends_on     = [aws_route_table.public]
+}
+
+resource "aws_route" "public_ig" {
+  count                  = local.create_public_subnets && var.create_igw ? 1 : 0
+  route_table_id         = aws_route_table.public[0].id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.this[0].id
+  depends_on             = [aws_internet_gateway.this, aws_route_table.public]
+
+}
 // Private Subnets
 locals {
   create_private_subnets = local.length_private_subnets > 0
@@ -70,4 +90,10 @@ resource "aws_subnet" "database" {
     ) },
     var.tags,
   )
+}
+
+// Internet Gateway
+resource "aws_internet_gateway" "this" {
+  count  = local.create_public_subnets && var.create_igw ? 1 : 0
+  vpc_id = aws_vpc.this.id
 }

@@ -74,6 +74,18 @@ resource "aws_subnet" "private" {
   )
 }
 
+resource "aws_route_table" "private" {
+  count  = local.create_private_subnets ? 1 : 0
+  vpc_id = aws_vpc.this.id
+}
+
+resource "aws_route_table_association" "private" {
+  count          = local.create_private_subnets ? local.length_private_subnets : 0
+  subnet_id      = element(aws_subnet.private[*].id, count.index)
+  route_table_id = aws_route_table.private[0].id
+  depends_on     = [aws_route_table.private]
+}
+
 // Database Subnets
 locals {
   create_database_subnets = local.length_database_subnets > 0

@@ -104,6 +104,18 @@ resource "aws_subnet" "database" {
   )
 }
 
+resource "aws_route_table" "database" {
+  count  = local.create_private_subnets ? 1 : 0
+  vpc_id = aws_vpc.this.id
+}
+
+resource "aws_route_table_association" "database" {
+  count          = local.create_database_subnets ? local.length_database_subnets : 0
+  subnet_id      = element(aws_subnet.database[*].id, count.index)
+  route_table_id = aws_route_table.database[0].id
+  depends_on     = [aws_route_table.database]
+}
+
 // Internet Gateway
 resource "aws_internet_gateway" "this" {
   count  = local.create_public_subnets && var.create_igw ? 1 : 0

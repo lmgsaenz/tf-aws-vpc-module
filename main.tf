@@ -1,9 +1,10 @@
-// VPC
 locals {
   length_public_subnets   = length(var.public_subnets)
   length_private_subnets  = length(var.private_subnets)
   length_database_subnets = length(var.database_subnets)
 }
+
+// VPC
 resource "aws_vpc" "this" {
   cidr_block           = var.cidr
   instance_tenancy     = var.instance_tenancy
@@ -30,7 +31,7 @@ resource "aws_subnet" "public" {
   tags = merge(
     { Name = try(
       var.public_subnet_names[count.index],
-      var.name
+      format("${var.name}-${var.public_subnet_suffix}")
     ) },
     var.tags,
   )
@@ -68,7 +69,7 @@ resource "aws_subnet" "private" {
   tags = merge(
     { Name = try(
       var.private_subnet_names[count.index],
-      var.name
+      format("${var.name}-${var.private_subnet_suffix}")
     ) },
     var.tags,
   )
@@ -98,7 +99,7 @@ resource "aws_subnet" "database" {
   tags = merge(
     { Name = try(
       var.database_subnet_names[count.index],
-      var.name
+      format("${var.name}-${var.database_subnet_suffix}")
     ) },
     var.tags,
   )

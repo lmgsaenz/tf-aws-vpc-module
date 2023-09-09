@@ -40,6 +40,7 @@ resource "aws_subnet" "public" {
 resource "aws_route_table" "public" {
   count  = local.create_public_subnets ? 1 : 0
   vpc_id = aws_vpc.this.id
+  tags   = { Name = "${var.name}-${var.public_subnet_suffix}-rt" }
 }
 
 resource "aws_route_table_association" "public" {
@@ -78,6 +79,7 @@ resource "aws_subnet" "private" {
 resource "aws_route_table" "private" {
   count  = local.create_private_subnets ? 1 : 0
   vpc_id = aws_vpc.this.id
+  tags   = { Name = "${var.name}-${var.private_subnet_suffix}-rt" }
 }
 
 resource "aws_route_table_association" "private" {
@@ -108,6 +110,7 @@ resource "aws_subnet" "database" {
 resource "aws_route_table" "database" {
   count  = local.create_private_subnets ? 1 : 0
   vpc_id = aws_vpc.this.id
+  tags   = { Name = "${var.name}-${var.database_subnet_suffix}-rt" }
 }
 
 resource "aws_route_table_association" "database" {

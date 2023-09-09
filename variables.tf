@@ -57,7 +57,7 @@ variable "public_subnet_names" {
   default     = []
 }
 variable "public_subnet_suffix" {
-  description = "Suffix to add to the name of public subnets when the `public_subnet_names variable` has not been set."
+  description = "Suffix to add to the name of public subnets."
   type        = string
   default     = "public"
 }
@@ -75,7 +75,7 @@ variable "private_subnet_names" {
   default     = []
 }
 variable "private_subnet_suffix" {
-  description = "Suffix to add to the name of public subnets when the `private_subnet_names variable` has not been set."
+  description = "Suffix to add to the name of public subnets."
   type        = string
   default     = "private"
 }
@@ -93,7 +93,7 @@ variable "database_subnet_names" {
   default     = []
 }
 variable "database_subnet_suffix" {
-  description = "Suffix to add to the name of public subnets when the `database_subnet_names variable` has not been set."
+  description = "Suffix to add to the name of public subnets."
   type        = string
   default     = "database"
 }

@@ -37,7 +37,7 @@ variable "vpc_tags" {
 variable "azs" {
   description = "A list of AZ names"
   type        = list(string)
-  default     = []
+  default     = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
 }
 
 // Public Subnets

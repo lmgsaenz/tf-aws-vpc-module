@@ -1,3 +1,14 @@
+// Globals
+variable "env" {
+  description = "Name of the environment that will be added to all resources as a prefix to the names."
+  type        = string
+  default     = ""
+}
+variable "tags" {
+  description = "A map of tags to add to all resources."
+  type        = map(string)
+  default     = {}
+}
 // VPC
 variable "cidr" {
   description = "The IPv4 CIDR block for the VPC"
@@ -24,11 +35,6 @@ variable "name" {
   type        = string
   default     = ""
 }
-variable "tags" {
-  description = "A map of tags to add to all resources."
-  type        = map(string)
-  default     = {}
-}
 variable "vpc_tags" {
   description = "Additional tags for the VPC"
   type        = map(string)
@@ -37,14 +43,14 @@ variable "vpc_tags" {
 variable "azs" {
   description = "A list of AZ names"
   type        = list(string)
-  default     = ["eu-west-1a", "eu-west-1b", "eu-west-1c"]
+  default     = []
 }
 
 // Public Subnets
 variable "public_subnets" {
   description = "A list of CIDR public subnets inside the VPC"
   type        = list(string)
-  default     = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
+  default     = []
 }
 variable "map_public_ip_on_launch" {
   description = "Specify true to indicate that instances launched into the subnet should be assigned a public IP address."
@@ -66,7 +72,7 @@ variable "public_subnet_suffix" {
 variable "private_subnets" {
   description = "A list of CIDR private subnets inside the VPC"
   type        = list(string)
-  default     = ["10.0.20.0/24", "10.0.21.0/24", "10.0.22.0/24"]
+  default     = []
 }
 
 variable "private_subnet_names" {
@@ -84,7 +90,7 @@ variable "private_subnet_suffix" {
 variable "database_subnets" {
   description = "A list of CIDR database subnets inside the VPC"
   type        = list(string)
-  default     = ["10.0.30.0/24", "10.0.31.0/24", "10.0.32.0/24"]
+  default     = []
 }
 
 variable "database_subnet_names" {

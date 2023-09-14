@@ -12,7 +12,7 @@ resource "aws_vpc" "this" {
   enable_dns_support   = var.enable_dns_support
 
   tags = merge(
-    { Name = var.name },
+    { Name = "${var.env}-${var.name}-vpc" },
     var.tags,
     var.vpc_tags
   )
@@ -31,8 +31,8 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = var.map_public_ip_on_launch
   tags = merge(
     { Name = try(
-      var.public_subnet_names[count.index],
-      format("${var.name}-${var.public_subnet_suffix}-%s", element(var.azs, count.index))
+      "${var.env}-${var.public_subnet_names[count.index]}-subnet",
+      format("${var.env}-${var.name}-${var.public_subnet_suffix}-%s-subnet", element(var.azs, count.index))
     ) },
     var.tags,
   )
@@ -41,7 +41,10 @@ resource "aws_subnet" "public" {
 resource "aws_route_table" "public" {
   count  = local.create_public_subnets ? 1 : 0
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.name}-${var.public_subnet_suffix}-rt" }
+  tags = merge(
+    { Name = "${var.env}-${var.name}-${var.public_subnet_suffix}-rt" },
+    var.tags
+  )
 }
 
 resource "aws_route_table_association" "public" {
@@ -71,8 +74,8 @@ resource "aws_subnet" "private" {
   cidr_block        = element(var.private_subnets, count.index)
   tags = merge(
     { Name = try(
-      var.private_subnet_names[count.index],
-      format("${var.name}-${var.private_subnet_suffix}-%s", element(var.azs, count.index))
+      "${var.env}-${var.private_subnet_names[count.index]}-subnet",
+      format("${var.env}-${var.name}-${var.private_subnet_suffix}-%s-subnet", element(var.azs, count.index))
     ) },
     var.tags,
   )
@@ -81,7 +84,10 @@ resource "aws_subnet" "private" {
 resource "aws_route_table" "private" {
   count  = local.create_private_subnets ? 1 : 0
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.name}-${var.private_subnet_suffix}-rt" }
+  tags = merge(
+    { Name = "${var.env}-${var.name}-${var.private_subnet_suffix}-rt" },
+    var.tags
+  )
 }
 
 resource "aws_route_table_association" "private" {
@@ -103,8 +109,8 @@ resource "aws_subnet" "database" {
   cidr_block        = element(var.database_subnets, count.index)
   tags = merge(
     { Name = try(
-      var.database_subnet_names[count.index],
-      format("${var.name}-${var.database_subnet_suffix}-%s", element(var.azs, count.index))
+      "${var.env}-${var.database_subnet_names[count.index]}-subnet",
+      format("${var.env}-${var.name}-${var.database_subnet_suffix}-%s-subnet", element(var.azs, count.index))
     ) },
     var.tags,
   )
@@ -113,7 +119,10 @@ resource "aws_subnet" "database" {
 resource "aws_route_table" "database" {
   count  = local.create_private_subnets ? 1 : 0
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.name}-${var.database_subnet_suffix}-rt" }
+  tags = merge(
+    { Name = "${var.name}-${var.database_subnet_suffix}-rt" },
+    var.tags
+  )
 }
 
 resource "aws_route_table_association" "database" {
@@ -127,5 +136,8 @@ resource "aws_route_table_association" "database" {
 resource "aws_internet_gateway" "this" {
   count  = local.create_public_subnets && var.create_igw ? 1 : 0
   vpc_id = aws_vpc.this.id
-  tags   = { Name = "${var.name}-igw" }
+  tags = merge(
+    { Name = "${var.env}-${var.name}-igw" },
+    var.tags
+  )
 }

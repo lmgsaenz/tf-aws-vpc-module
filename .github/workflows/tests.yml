@@ -19,6 +19,11 @@ jobs:
         shell: bash
     
     steps:
+      - name: Get some info for the server (DeguMode)
+        run: |
+          ls -las
+          pwd
+          echo $HOME
       - name: Get and Report TFSec
         uses: aquasecurity/tfsec-action@v1.0.0
         with:

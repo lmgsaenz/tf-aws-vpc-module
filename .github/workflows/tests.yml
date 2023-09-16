@@ -24,7 +24,7 @@ jobs:
         with:
           format: junit
           additional_args: --out tfsec-junit.xml
-          working_directory: env.WORKING_DIR
+          working_directory: ${{ env.WORKING_DIR }}
         continue-on-error: true
       
       - name: Post TFSec Report
@@ -34,4 +34,4 @@ jobs:
           github_token: ${{ github.token }}
           tfsec_formats: junit
           soft_fail_commenter: true
-          tfsec_args: --out tfsec-junit.xml
+          tfsec_args: --out=tfsec-junit.xml

@@ -46,11 +46,11 @@ jobs:
     
     - name: Terraform Init
       id: init
-      run: terraform init
+      run: terragrunt run-all init
 
     - name: Terraform Validate
       id: validate
-      run: terragrun run-all validate
+      run: terragrunt run-all validate
       continue-on-error: true
     
     - name: Terraform fmt

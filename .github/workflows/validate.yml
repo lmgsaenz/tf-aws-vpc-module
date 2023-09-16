@@ -60,7 +60,7 @@ jobs:
       continue-on-error: true
 
     - name: Post Validate
-      if: always() && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure')
+      if: always() && github.ref != 'refs/head/master' && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure')
       uses: GetTerminus/terraform-pr-commenter@v3
       with:
         commenter_type: validate

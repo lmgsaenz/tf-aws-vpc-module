@@ -1,0 +1,37 @@
+name: 'Tests'
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  WORKING_DIR: examples/
+
+jobs:
+  testing:
+    name: 'Terraform Testing'
+    runs-on: ubuntu-22.04
+    
+    defaults:
+      run:
+        shell: bash
+    
+    steps:
+      - name: Get and Report TFSec
+        uses: aquasecurity/tfsec-action@v1.0.0
+        with:
+          format: junit
+          additional_args: --out tfsec-junit.xml
+          working_directory: env.WORKING_DIR
+        continue-on-error: true
+      
+      - name: Post TFSec Report
+        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+        if: success() || failure()
+        with:
+          github_token: ${{ github.token }}
+          tfsec_formats: junit
+          soft_fail_commenter: true
+          tfsec_args: --out tfsec-junit.xml

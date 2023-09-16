@@ -14,14 +14,11 @@ env:
   GITHUB_TOKEN: ${{ github.token }}
   WORKING_DIR: ./examples/
 
-jobs:
-  avoid-reduncy:
-    name: Avoid Reduncy
-    runs-on: ubuntu-22.04
-    steps:
-    - name: Cancel Previous Redundant Builds
-      uses: styfle/cancel-workflow-action@0.11.0
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
+jobs:
   terraform:
     name: Terraform Validate
     runs-on: ubuntu-22.04

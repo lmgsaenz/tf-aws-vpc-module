@@ -1,6 +1,9 @@
 name: "Validate"
 on:
+  push:
+    branches: [main]
   pull_request:
+    branches: [main]
     types: [opened, reopened, synchronize]
 
 env:
@@ -45,11 +48,11 @@ jobs:
     - name: Check awscli version
       run: aws --version
     
-    - name: Terraform Init
+    - name: Terragrunt Init
       id: init
       run: terragrunt run-all init
 
-    - name: Terraform Validate
+    - name: Terragrunt Validate
       id: validate
       run: terragrunt run-all validate
       continue-on-error: true

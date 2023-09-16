@@ -1,29 +1,24 @@
-name: 'Tests'
+name: 'TFSec'
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
+    branches: [main]
+    types: [opened, reopened, synchronize]
 
 env:
   WORKING_DIR: ./examples/
 
 jobs:
   testing:
-    name: 'Terraform Testing'
+    name: 'Terraform tfsec'
     runs-on: ubuntu-22.04
     
-    defaults:
-      run:
-        shell: bash
-    
     steps:
-      - name: Get some info for the server (DeguMode)
-        run: |
-          ls -las
-          pwd
-          echo $HOME
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Get and Report TFSec
         uses: aquasecurity/tfsec-action@v1.0.0
         with:

@@ -1,0 +1,67 @@
+name: "Validate"
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+env:
+  TF_VERSION: 1.5.7
+  TG_VERSION: v0.50.17
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID}}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
+
+jobs:
+  terraform:
+    name: "Terraform Validate"
+    runs-on: ubuntu-22.04
+    permissions:
+      contents: read
+      pull-requests: write
+
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Get and Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: $TF_VERSION
+    
+    - name: Install Terragrunt
+      run: |
+        curl -s -qL -o terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/$TG_VERSION/terragrunt_linux_amd64
+        chmod +x terragrunt
+        sudo mv terragrunt /bin
+        
+    - name: Check Terraform version
+      run: terraform --version
+    
+    - name: Check Terragrunt
+      run: terragrunt --version
+        
+    - name: Check awscli version
+      run: aws --version
+    
+    - name: Terraform Init
+      id: init
+      run: terraform init
+
+    - name: Terraform Validate
+      id: validate
+      run: terragrun run-all validate
+      continue-on-error: true
+    
+    - name: Terraform fmt
+      id: fmt
+      run: terragrunt fmt -check -recursive -diff
+      continue-on-error: false
+    
+    - name: Post Validate
+      if: always() && github.ref != 'refs/head/main' && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure')
+      uses: robburger/terraform-pr-commenter@v1
+      with:
+        commenter_type: validate
+        commenter_input: ${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}
+        commenter_exitcode: ${{ steps.validate.outputs.exitcode}}

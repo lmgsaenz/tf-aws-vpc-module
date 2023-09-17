@@ -9,11 +9,12 @@ on:
 env:
   TF_VERSION: 1.5.7
   TG_VERSION: v0.50.17
+  GO_VERSION: 1.21.1
   AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID}}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
   GITHUB_TOKEN: ${{ github.token }}
-  WORKING_DIR: ./examples/
-  TERRATEST_DIR: ./tests
+  WORKING_DIR: examples
+  TERRATEST_DIR: tests
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -118,13 +119,13 @@ jobs:
       - name: Get and Setup go
         uses: actions/setup-go@v4
         with:
-          go-version-file: ${{ env.TERRATEST_DIR }}
-          cache: true
-          cache-dependency-path: ${{ env.TERRATEST_DIR }}/go.mod
+          go-version: ${{ env.GO_VERSION }}
 
       - name: Run Terratest test
         working-directory: ${{ env.TERRATEST_DIR }}
         run: |
+          go mod init ${{ github.event.repository.name }}
+          go mod tidy
           go install github.com/jstemmer/go-junit-report@v2.0.0
           go test -v ./... | go-junit-report -set-exit-code > report.xml
       

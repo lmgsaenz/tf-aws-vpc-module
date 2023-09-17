@@ -13,6 +13,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
   GITHUB_TOKEN: ${{ github.token }}
   WORKING_DIR: ./examples/
+  TERRATEST_DIR: ./tests/
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -105,3 +106,30 @@ jobs:
           github_token: ${{ github.token }}
           tfsec_formats: junit
           soft_fail_commenter: true
+  
+  terratest:
+    name: Terratest
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get and Setup go
+        uses: actions/setup-go@v4
+        with:
+          go-version-file: ${{ env.TERRATEST_DIR }}
+          cache: true
+          cache-dependency-path: ${{ env.TERRATEST_DIR }}/go.mod
+
+      - name: Run Terratest test
+        working-directory: ${{ env.TERRATEST_DIR }}
+        run: |
+          go install github.com/jstemmer/go-junit-report@v2.0.0
+          go test -v ./... | go-junit-report -set-exit-code > report.xml
+      
+      - name: Post Test Summary
+        if: always()
+        uses: test-summary/action@v2
+        with:
+          paths: ${{ env.TERRATEST_DIR }}/report.xml

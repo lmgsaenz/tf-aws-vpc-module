@@ -13,7 +13,7 @@ env:
   AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY}}
   GITHUB_TOKEN: ${{ github.token }}
   WORKING_DIR: ./examples/
-  TERRATEST_DIR: ./tests/
+  TERRATEST_DIR: ./tests
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

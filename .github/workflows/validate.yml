@@ -128,8 +128,7 @@ jobs:
         run: |
           go mod init ${{ github.event.repository.name }}
           go mod tidy
-          go install github.com/jstemmer/go-junit-report@latest
-          go test -v 2>&1 ./... | go-junit-report -set-exit-code > report.xml
+          go test 
       
       - name: Post Test Summary
         if: always()

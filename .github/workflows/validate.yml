@@ -49,39 +49,15 @@ jobs:
       id: init
       run: terragrunt run-all init
 
-    - name: Post Init
-      if: always() && github.ref != 'refs/heads/master' && (steps.init.outcome == 'success' || steps.init.outcome == 'failure')
-      uses: GetTerminus/terraform-pr-commenter@v3
-      with:
-        commenter_type: init
-        commenter_input: ${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}
-        commenter_exitcode: ${{ steps.init.outputs.exitcode }}
-
-    - name: Terragrunt Validate
-      id: validate
-      run: terragrunt run-all validate
-      continue-on-error: true
-
-    - name: Post Validate
-      if: always() && github.ref != 'refs/head/master' && (steps.validate.outcome == 'success' || steps.validate.outcome == 'failure')
-      uses: GetTerminus/terraform-pr-commenter@v3
-      with:
-        commenter_type: validate
-        commenter_input: ${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}
-        commenter_exitcode: ${{ steps.validate.outputs.exitcode}}
-    
     - name: Terragrunt format
       id: fmt
       run: terragrunt fmt -check -recursive -diff
       continue-on-error: false
 
-    - name: Post Format
-      if: always() && github.ref != 'refs/heads/master' && (steps.fmt.outcome == 'success' || steps.fmt.outcome == 'failure')
-      uses: GetTerminus/terraform-pr-commenter@v3
-      with:
-        commenter_type: fmt
-        commenter_input: ${{ format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr) }}
-        commenter_exitcode: ${{ steps.fmt.outputs.exitcode }}
+    - name: Terragrunt Validate
+      id: validate
+      run: terragrunt run-all validate
+      continue-on-error: true
 
     - name: Add PR Comment
       id: comment
@@ -90,9 +66,10 @@ jobs:
       with:
         github-token: ${{ github.token }}
         script: |
-          const output = #### Terraform Initialization: \`${{ steps.init.outcome }}\`
-          #### Terraform Format and Style: \`${{ format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr)}}`
-          #### Terraform Validation: ${{ steps.validate.outputs.stdout }}
+          const output = `#### Terraform Initialization: \`${{ steps.init.outcome }}\`
+          #### Terraform Format and Style: \`${{ steps.fmt.outcome }}\`
+          #### Terraform Validation: ${{ steps.validate.outcome }}
+
           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
           github.rest.issues.createComment({
             issue_number: context.issue.number,

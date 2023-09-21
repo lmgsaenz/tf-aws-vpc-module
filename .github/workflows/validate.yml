@@ -131,17 +131,14 @@ jobs:
       #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Download Go Modules
-        working-directory: ${{ env.TERRATEST_DIR }}
-        run: go mod download
-
       - name: Run Go Tests
         working-directory: ${{ env.TERRATEST_DIR }}
         run: |
+          go mod init ${{ github.event.repository.name }}
+          go mod download
           go test -v -tags=unit
           gotestsum --format short-verbose -- -tags=unit
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          go mod init ${{ github.event.repository.name }}
 #          go mod tidy

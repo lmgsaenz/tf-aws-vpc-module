@@ -135,10 +135,9 @@ jobs:
         working-directory: ${{ env.TERRATEST_DIR }}
         run: |
           go mod init ${{ github.event.repository.name }}
-          go mod download
+          go mod tidy
           go test -v -tags=unit
           gotestsum --format short-verbose -- -tags=unit
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-#          go mod tidy

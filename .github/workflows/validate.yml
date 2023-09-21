@@ -124,22 +124,24 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
 
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id : ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+      # - name: Configure AWS Credentials
+      #   uses: aws-actions/configure-aws-credentials@v4
+      #   with:
+      #     aws-access-key-id : ${{ secrets.AWS_ACCESS_KEY_ID }}
+      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      #     aws-region: ${{ env.AWS_REGION }}
 
-      - name: Run Terratest test
+      - name: Download Go Modules
+        working-directory: ${{ env.TERRATEST_DIR }}
+        run: go mod download
+
+      - name: Run Go Tests
         working-directory: ${{ env.TERRATEST_DIR }}
         run: |
-          go mod init ${{ github.event.repository.name }}
-          go mod tidy
-          go test 
-      
-      - name: Post Test Summary
-        if: always()
-        uses: test-summary/action@v2
-        with:
-          paths: report.xml
+          go test -v -tags=unit
+          gotestsum --format short-verbose -- -tags=unit
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#          go mod init ${{ github.event.repository.name }}
+#          go mod tidy

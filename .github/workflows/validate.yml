@@ -66,9 +66,9 @@ jobs:
       with:
         github-token: ${{ github.token }}
         script: |
-          const output = `#### Terraform Initialization: \`${{ steps.init.outcome }}\`
-          #### Terraform Format: \`${{ steps.fmt.outcome }}\`
-          #### Terraform Validation: \`${{ steps.validate.outcome }}\``
+          const output = `#### Terraform Initialization: \`${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}\`
+          #### Terraform Format: \`${{format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr) }}\`
+          #### Terraform Validation: \`${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}\``
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,

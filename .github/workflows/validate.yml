@@ -137,7 +137,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            const output = `#### Terratest Result: \`${{ steps.test.conclusion }}\`
+            const output = `#### Terratest Result: \`${{ steps.test.conclusion }}\``
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,

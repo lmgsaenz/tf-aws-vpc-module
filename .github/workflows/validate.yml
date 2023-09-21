@@ -86,13 +86,13 @@ jobs:
     - name: Add PR Comment
       id: comment
       uses: actions/github-script@v6
-      if: github.event_name == 'pull_request'
+      if: always() && github.ref != 'refs/heads/master'
       with:
         github-token: ${{ github.token }}
         script: |
-          const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-          #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-          #### Terraform Validation 🤖${{ steps.validate.outputs.stdout }}
+          const output = #### Terraform Initialization: \`${{ steps.init.outcome }}\`
+          #### Terraform Format and Style: \`${{ format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr)}}`
+          #### Terraform Validation: ${{ steps.validate.outputs.stdout }}
           *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
           github.rest.issues.createComment({
             issue_number: context.issue.number,

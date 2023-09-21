@@ -68,9 +68,12 @@ jobs:
         script: |
           const output = `#### Terraform Initialization: \`${{ steps.init.outcome }}\`
           #### Terraform Format and Style: \`${{ steps.fmt.outcome }}\`
-          #### Terraform Validation: ${{ steps.validate.outcome }}
+          #### Terraform Validation: \${{ steps.validate.outcome }}
 
-          *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+          *Pusher: `@${{ github.actor }}\`
+          `Action: \`${{ github.event_name }}\`
+          `Workflow: \`${{ github.workflow }}\`*`;
+          
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,

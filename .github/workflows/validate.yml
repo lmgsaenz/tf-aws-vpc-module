@@ -66,9 +66,9 @@ jobs:
       with:
         github-token: ${{ github.token }}
         script: |
-          const output = `#### Terraform Initialization: \`${{ format('{0}{1}', steps.init.outputs.stdout, steps.init.outputs.stderr) }}\`
-          #### Terraform Format: \`${{format('{0}{1}', steps.fmt.outputs.stdout, steps.fmt.outputs.stderr) }}\`
-          #### Terraform Validation: \`${{ format('{0}{1}', steps.validate.outputs.stdout, steps.validate.outputs.stderr) }}\``
+          const output = `#### Terraform Initialization: \`${{ steps.init.outcome }}\`
+          #### Terraform Format: \`${{ steps.fmt.outcome }}\`
+          #### Terraform Validation: \`${{ steps.validate.outcome }}\``
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
@@ -124,8 +124,23 @@ jobs:
           go mod tidy
 
       - name: Run Go Tests
+        id: test
         working-directory: ${{ env.TERRATEST_DIR }}
         run: go test -v
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Report back the result
+        uses: actions/github-script@v6
+        if: always()
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const output = `#### Terratest Result: \`${{ steps.test.conclusion }}\`
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })

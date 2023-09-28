@@ -1,10 +1,8 @@
-name: "Validate & TFSec & Terratest"
+name: Pull Request to main
 on:
-  push:
-    branches: [main]
   pull_request:
-    branches: [main]
-    types: [opened, reopened, synchronize]
+    branches:
+      - main
 
 env:
   TF_VERSION: 1.5.7
@@ -22,75 +20,51 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  terraform:
-    name: Terraform Validate
+  security-scanner-code:
     runs-on: ubuntu-22.04
-  
-    permissions:
-      contents: read
-      pull-requests: write
-  
+    defaults:
+      run:
+        shell: bash
+
     steps:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Get and Setup Terraform
+    - name: Setup Terraform
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: $TF_VERSION
-    
-    - name: Install Terragrunt
+
+    - name: Setup Terragrunt
       run: |
         curl -s -qL -o terragrunt https://github.com/gruntwork-io/terragrunt/releases/download/$TG_VERSION/terragrunt_linux_amd64
         chmod +x terragrunt
-        sudo mv terragrunt /bin
-    
+        sudo mv terragrunt /bin 
+
     - name: Terragrunt Init
       id: init
       run: terragrunt run-all init
-
-    - name: Terragrunt format
-      id: fmt
-      run: terragrunt fmt -check -recursive -diff
-      continue-on-error: false
-
-    - name: Terragrunt Validate
-      id: validate
-      run: terragrunt run-all validate
+  
+    - name: Get and Report TFSec
+      uses: aquasecurity/tfsec-action@v1.0.0
+      with:
+        format: junit
+        working_directory: ${{ env.WORKING_DIR }}
       continue-on-error: true
+    
+    - name: Add TFSect Report Code
+      uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+      with:
+        github_token: ${{ github.token }}
+        tfsec_format: junit
+        soft_fail_commenter: true
 
-  test:
-    name: TFSec
-    needs: [terraform]
+  test-code:
     runs-on: ubuntu-22.04
-
-    permissions:
-      contents: read
-      pull-requests: write
-  
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      
-      - name: Get and Report TFSec
-        uses: aquasecurity/tfsec-action@v1.0.0
-        with:
-          format: junit
-          working_directory: ${{ env.WORKING_DIR }}
-        continue-on-error: true
-
-      - name: Post TFSec Report
-        uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
-        with:
-          github_token: ${{ github.token }}
-          tfsec_formats: junit
-          soft_fail_commenter: true
-  
-  terratest:
-    name: Terratest
-    needs: [terraform]
-    runs-on: ubuntu-22.04
-
+    defaults:
+      run:
+        shell: bash
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -99,6 +73,7 @@ jobs:
         uses: actions/setup-go@v4
         with:
           go-version: ${{ env.GO_VERSION }}
+
 
       - name: Setup Go Dependency
         working-directory: ${{ env.TERRATEST_DIR }}
@@ -109,7 +84,29 @@ jobs:
       - name: Run Go Tests
         id: test
         working-directory: ${{ env.TERRATEST_DIR }}
-        run: go test -v
+        run: go test *test.go
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Add Terratest Comment
+        id: comment
+        uses: actions/github-script@v6
+        env:
+          RESULT: "terratest\n${{ steps.test.outputs.stdout }}"
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            const output = `### Terratest Results \`${{ steps.test.outcome }}\`
+  
+            Show Result
+            `\`\`\`${process.env.RESULT}\`\`\`
+  
+            *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
+  
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })

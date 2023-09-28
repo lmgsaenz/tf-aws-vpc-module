@@ -96,10 +96,11 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
       - name: Add Terratest Comment
+        if: always()
         id: comment
         uses: actions/github-script@v6
         env:
-          RESULT: "terratest\n${{ steps.test.outputs.stdout }}"
+          RESULT: "terratest\n${{ steps.test.conclusion }}"
         with:
           github-token: ${{ github.token }}
           script: |

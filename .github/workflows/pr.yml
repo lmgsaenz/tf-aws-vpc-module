@@ -25,7 +25,10 @@ jobs:
     defaults:
       run:
         shell: bash
-
+    permissions:
+      contents: read
+      pull-requests: write
+    
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -53,10 +56,10 @@ jobs:
       continue-on-error: true
     
     - name: Add TFSect Report Code
-      uses: aquasecurity/tfsec-pr-commenter-action@v1.2.0
+      uses: aquasecurity/tfsec-pr-commenter-action@v1.3.1
       with:
         github_token: ${{ github.token }}
-        tfsec_format: junit
+        tfsec_formats: junit
         soft_fail_commenter: true
 
   test-code:
@@ -64,7 +67,10 @@ jobs:
     defaults:
       run:
         shell: bash
-    
+    permissions:
+      contents: read
+      pull-requests: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -97,10 +103,10 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            const output = `### Terratest Results \`${{ steps.test.outcome }}\`
+            const output = `#### Terratest Results \`${{ steps.test.outcome }}\`
   
             Show Result
-            `\`\`\`${process.env.RESULT}\`\`\`
+            \`\`\`${process.env.RESULT}\`\`\`
   
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
   

@@ -1,15 +1,27 @@
 // VPC FLOW LOG
 resource "aws_flow_log" "this" {
-  iam_role_arn    = aws_iam_role.this.arn
-  log_destination = aws_cloudwatch_log_group.this.arn
-  traffic_type    = upper(var.flow_log_traffic_type)
-  vpc_id          = aws_vpc.this.id
+  iam_role_arn             = aws_iam_role.vpc_flow_log_cloudwatch.arn
+  log_destination          = aws_cloudwatch_log_group.flow_log.arn
+  traffic_type             = upper(var.flow_log_traffic_type)
+  vpc_id                   = aws_vpc.this.id
+  max_aggregation_interval = var.flow_log_max_aggregation_interval
+  tags                     = var.tags
 }
-resource "aws_cloudwatch_log_group" "this" {
-  name = var.aws_cloudwatch_log_group
+
+resource "aws_cloudwatch_log_group" "flow_log" {
+  name              = var.flow_log_cloudwatch_log_group_name
+  retention_in_days = var.flow_log_cloudwatch_log_group_retention_in_days
+  kms_key_id        = var.flow_log_cloudwatch_log_group_kms_id
 }
-data "aws_iam_policy_document" "assume_role" {
+
+resource "aws_iam_role" "vpc_flow_log_cloudwatch" {
+  name               = var.flow_log_iam_role_name
+  assume_role_policy = data.aws_iam_policy_document.flow_log_cloudwatch_assume_role.json
+}
+
+data "aws_iam_policy_document" "flow_log_cloudwatch_assume_role" {
   statement {
+    sid    = "AWSVPCFlowLogsAssumeRole"
     effect = "Allow"
 
     principals {
@@ -20,12 +32,10 @@ data "aws_iam_policy_document" "assume_role" {
     actions = ["sts:AssumeRole"]
   }
 }
-resource "aws_iam_role" "this" {
-  name               = var.vpc_flow_log_role
-  assume_role_policy = data.aws_iam_policy_document.assume_role.json
-}
-data "aws_iam_policy_document" "this" {
+
+data "aws_iam_policy_document" "vpc_flow_log_cloudwatch" {
   statement {
+    sid    = "AWSVPCFlowLogsPushToCloudWatch"
     effect = "Allow"
 
     actions = [
@@ -40,8 +50,8 @@ data "aws_iam_policy_document" "this" {
   }
 }
 
-resource "aws_iam_role_policy" "this" {
+resource "aws_iam_role_policy" "vpc_flow_log_cloudwatch" {
   name   = "${var.env}-${var.name}-flow-log-policy"
-  role   = aws_iam_role.this.name
-  policy = data.aws_iam_policy_document.this.json
+  role   = aws_iam_role.vpc_flow_log_cloudwatch.name
+  policy = data.aws_iam_policy_document.vpc_flow_log_cloudwatch.json
 }

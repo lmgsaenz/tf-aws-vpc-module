@@ -25,9 +25,9 @@ module "vpc" {
   private_subnet_names = ["private1", "private2", "private3"]
   # database_subnet_names omitted to show default name generation for all three subnets
 
-  vpc_flow_log_role        = "${local.tags.Env}-lmgs-vpc-flow-log-role"
-  aws_cloudwatch_log_group = "${local.tags.Env}-lmgs-vpc-flow-log"
-  flow_log_traffic_type    = "ALL"
+  flow_log_iam_role_name             = "${local.tags.Env}-lmgs-vpc-flow-log-role"
+  flow_log_cloudwatch_log_group_name = "${local.tags.Env}-lmgs-vpc-flow-log"
+  flow_log_traffic_type              = "ALL"
 
   tags = local.tags
 }

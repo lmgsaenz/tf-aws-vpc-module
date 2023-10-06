@@ -104,7 +104,7 @@ jobs:
         with:
           github-token: ${{ github.token }}
           script: |
-            const output = `#### Terratest Results \`${{ steps.test.outcome }}\`
+            const output = `#### Terratest Results: \`${{ steps.test.outcome }}\`
   
             *Pusher: @${{ github.actor }}, Action: \`${{ github.event_name }}\`, Workflow: \`${{ github.workflow }}\`*`;
   

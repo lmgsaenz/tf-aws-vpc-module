@@ -110,3 +110,25 @@ variable "create_igw" {
   type        = bool
   default     = true
 }
+
+// VPC Flow Log
+variable "vpc_id" {
+  description = "VPC ID to attach to"
+  type        = string
+  default     = ""
+}
+variable "vpc_flow_log_role" {
+  description = "value"
+  type        = string
+  default     = ""
+}
+variable "flow_log_traffic_type" {
+  description = "The type of traffic to capture. Valid values: ACCEPT, REJECT, ALL"
+  type        = string
+  default     = "ALL"
+}
+variable "aws_cloudwatch_log_group" {
+  description = "The Name of the logging destination"
+  type        = string
+  default     = ""
+}

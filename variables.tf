@@ -117,8 +117,8 @@ variable "vpc_id" {
   type        = string
   default     = ""
 }
-variable "vpc_flow_log_role" {
-  description = "value"
+variable "flow_log_iam_role_name" {
+  description = "Friendly IAM role name to match"
   type        = string
   default     = ""
 }
@@ -127,8 +127,23 @@ variable "flow_log_traffic_type" {
   type        = string
   default     = "ALL"
 }
-variable "aws_cloudwatch_log_group" {
+variable "flow_log_max_aggregation_interval" {
+  description = "The maximum interval of time during which a flow of packets is captured and aggregated into a flow log record. Valid Values: 60(1m) or 600(10m)"
+  type        = number
+  default     = 600
+}
+variable "flow_log_cloudwatch_log_group_name" {
   description = "The Name of the logging destination"
+  type        = string
+  default     = ""
+}
+variable "flow_log_cloudwatch_log_group_retention_in_days" {
+  description = "Specifies the number of days you want to retain log events in the specified log group."
+  type        = number
+  default     = 0
+}
+variable "flow_log_cloudwatch_log_group_kms_id" {
+  description = "The ARN of the KMS Key to use when encrypting log data"
   type        = string
   default     = ""
 }
